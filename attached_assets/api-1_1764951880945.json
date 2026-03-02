@@ -1,0 +1,2616 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Orca Public API",
+    "description": "A list of public endpoints for Orca protocol",
+    "contact": {
+      "name": "Orca Team",
+      "url": "https://www.orca.so",
+      "email": "team@orca.so"
+    },
+    "license": {
+      "name": ""
+    },
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://api.orca.so/v2/{chain}",
+      "variables": {
+        "chain": {
+          "default": "",
+          "description": "Chain to use (solana for mainnet, eclipse for eclipse chain)",
+          "enum": [
+            "solana",
+            "eclipse"
+          ]
+        }
+      }
+    }
+  ],
+  "paths": {
+    "/lock/{address}": {
+      "get": {
+        "tags": [
+          "whirlpools"
+        ],
+        "summary": "Get locked liquidity for a given whirlpool",
+        "description": "This endpoint returns the locked liquidity for a given whirlpool.",
+        "operationId": "get_lock_percentage",
+        "parameters": [
+          {
+            "name": "address",
+            "in": "path",
+            "description": "The Solana account address of the whirlpool.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Locked liquidity for the whirlpool",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LockInfo"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid address format"
+          },
+          "404": {
+            "description": "Whirlpool not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/pools": {
+      "get": {
+        "tags": [
+          "whirlpools"
+        ],
+        "summary": "List whirlpools with optional filtering and pagination",
+        "operationId": "get_whirlpools",
+        "parameters": [
+          {
+            "name": "sortBy",
+            "in": "query",
+            "description": "Field to sort whirlpools by",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/SortField"
+            }
+          },
+          {
+            "name": "sortDirection",
+            "in": "query",
+            "description": "Direction to sort whirlpools in",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/SortDirection"
+            }
+          },
+          {
+            "name": "next",
+            "in": "query",
+            "description": "Cursor to start the next page of results",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "previous",
+            "in": "query",
+            "description": "Cursor to start the previous page of results",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "hasRewards",
+            "in": "query",
+            "description": "Filter whirlpools that must have rewards",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "hasWarning",
+            "in": "query",
+            "description": "Filter whirlpools that must have a warning",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "hasAdaptiveFee",
+            "in": "query",
+            "description": "Whether a whirlpool must be using adaptive fee",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "isWavebreak",
+            "in": "query",
+            "description": "Whether a whirlpool must have graduated from wavebreak",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "minTvl",
+            "in": "query",
+            "description": "Minimum TVL of a whirlpool in USDC",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/Decimal"
+            }
+          },
+          {
+            "name": "minVolume",
+            "in": "query",
+            "description": "Minimum volume of a whirlpool in USDC",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/Decimal"
+            }
+          },
+          {
+            "name": "minLockedLiquidityPercent",
+            "in": "query",
+            "description": "Minimum locked liquidity percentage of a whirlpool",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/Decimal"
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "description": "Number of results to return",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 0
+            }
+          },
+          {
+            "name": "token",
+            "in": "query",
+            "description": "Filter whirlpools containing this token",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/Pubkey"
+            }
+          },
+          {
+            "name": "tokensBothOf",
+            "in": "query",
+            "description": "Filter whirlpools containing both specified tokens",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/Pubkey"
+              }
+            }
+          },
+          {
+            "name": "addresses",
+            "in": "query",
+            "description": "Filter whirlpools with these addresses",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/Pubkey"
+              }
+            }
+          },
+          {
+            "name": "stats",
+            "in": "query",
+            "description": "Filter whirlpools with stats for these time periods",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/TimePeriod"
+              }
+            }
+          },
+          {
+            "name": "includeBlocked",
+            "in": "query",
+            "description": "Include blocked whirlpools if true",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of whirlpools",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UtoipaApiResponse_Vec_PublicWhirlpool"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid query parameters"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/pools/search": {
+      "get": {
+        "tags": [
+          "whirlpools"
+        ],
+        "summary": "Search for whirlpools by token symbols or address",
+        "description": "This endpoint allows searching for whirlpools by:\n- Token symbols (e.g., \"SOL USDC\" to find pools with both tokens)\n- Single token symbol (e.g., \"SOL\" to find all pools containing SOL)\n- Whirlpool address (single address exact match)\n\nThe search is case-insensitive and supports partial matching for token symbols.",
+        "operationId": "search_whirlpools",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "description": "Query text to search by",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "next",
+            "in": "query",
+            "description": "Cursor to start the next page of results",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "description": "Maximum number of results to return",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 0
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "description": "Field to sort by",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/SortField"
+            }
+          },
+          {
+            "name": "sortDirection",
+            "in": "query",
+            "description": "Sort direction",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/SortDirection"
+            }
+          },
+          {
+            "name": "minTvl",
+            "in": "query",
+            "description": "Minimum TVL of a whirlpool in USDC",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/Decimal"
+            }
+          },
+          {
+            "name": "minVolume",
+            "in": "query",
+            "description": "Minimum volume of a whirlpool in USDC",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/Decimal"
+            }
+          },
+          {
+            "name": "stats",
+            "in": "query",
+            "description": "Filter whirlpools with stats for these time periods",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/TimePeriod"
+              }
+            }
+          },
+          {
+            "name": "userTokens",
+            "in": "query",
+            "description": "Comma-separated list of token addresses owned by the user",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/Pubkey"
+              }
+            }
+          },
+          {
+            "name": "hasRewards",
+            "in": "query",
+            "description": "Filter for pools with rewards",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "verifiedOnly",
+            "in": "query",
+            "description": "Filter for pools with verified tokens",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "hasLockedLiquidity",
+            "in": "query",
+            "description": "Filter for pools with locked liquidity",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of matching whirlpools",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UtoipaApiResponse_Vec_PublicWhirlpool"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid query parameters"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/pools/{address}": {
+      "get": {
+        "tags": [
+          "whirlpools"
+        ],
+        "summary": "Get whirlpool data by address",
+        "operationId": "get_whirlpool",
+        "parameters": [
+          {
+            "name": "address",
+            "in": "path",
+            "description": "Whirlpool address",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "description": "Field to sort whirlpools by",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/SortField"
+            }
+          },
+          {
+            "name": "sortDirection",
+            "in": "query",
+            "description": "Direction to sort whirlpools in",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/SortDirection"
+            }
+          },
+          {
+            "name": "next",
+            "in": "query",
+            "description": "Cursor to start the next page of results",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "previous",
+            "in": "query",
+            "description": "Cursor to start the previous page of results",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "hasRewards",
+            "in": "query",
+            "description": "Filter whirlpools that must have rewards",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "hasWarning",
+            "in": "query",
+            "description": "Filter whirlpools that must have a warning",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "hasAdaptiveFee",
+            "in": "query",
+            "description": "Whether a whirlpool must be using adaptive fee",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "isWavebreak",
+            "in": "query",
+            "description": "Whether a whirlpool must have graduated from wavebreak",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "minTvl",
+            "in": "query",
+            "description": "Minimum TVL of a whirlpool in USDC",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/Decimal"
+            }
+          },
+          {
+            "name": "minVolume",
+            "in": "query",
+            "description": "Minimum volume of a whirlpool in USDC",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/Decimal"
+            }
+          },
+          {
+            "name": "minLockedLiquidityPercent",
+            "in": "query",
+            "description": "Minimum locked liquidity percentage of a whirlpool",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/Decimal"
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "description": "Number of results to return",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 0
+            }
+          },
+          {
+            "name": "token",
+            "in": "query",
+            "description": "Filter whirlpools containing this token",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/Pubkey"
+            }
+          },
+          {
+            "name": "tokensBothOf",
+            "in": "query",
+            "description": "Filter whirlpools containing both specified tokens",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/Pubkey"
+              }
+            }
+          },
+          {
+            "name": "addresses",
+            "in": "query",
+            "description": "Filter whirlpools with these addresses",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/Pubkey"
+              }
+            }
+          },
+          {
+            "name": "stats",
+            "in": "query",
+            "description": "Filter whirlpools with stats for these time periods",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/TimePeriod"
+              }
+            }
+          },
+          {
+            "name": "includeBlocked",
+            "in": "query",
+            "description": "Include blocked whirlpools if true",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Whirlpool data retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UtoipaApiResponse_PublicWhirlpool"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid whirlpool address"
+          },
+          "404": {
+            "description": "Whirlpool not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/protocol": {
+      "get": {
+        "tags": [
+          "protocol"
+        ],
+        "summary": "Recent protocol stats for the Orca",
+        "description": "This endpoint returns general information about the Orca protocol including:\n- Total Value Locked (TVL) in USDC\n- 24-hour trading volume in USDC\n- 24-hour fees collected in USDC\n- 24-hour protocol revenue in USDC",
+        "operationId": "get_protocol_info",
+        "responses": {
+          "200": {
+            "description": "Protocol information retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProtocolInfo"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AppError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/protocol/token": {
+      "get": {
+        "tags": [
+          "protocol"
+        ],
+        "summary": "Information about the Orca token",
+        "description": "This endpoint returns detailed information about the Orca token, including:\n- Token symbol, name, and description\n- Token image URL\n- Current price in USDC\n- Circulating and total supply\n- 24-hour trading volume statistics\n\nThe circulating supply is calculated as the total supply minus tokens held in excluded addresses\n(treasury, grants, etc.). The data is cached to reduce RPC and database load.",
+        "operationId": "get_token_info",
+        "responses": {
+          "200": {
+            "description": "Token information retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProtocolInfoOrcaToken"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AppError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/protocol/token/circulating_supply": {
+      "get": {
+        "tags": [
+          "protocol"
+        ],
+        "summary": "Circulating supply of the Orca protocol's token",
+        "description": "This endpoint returns the circulating supply of the protocol's token.\nThe circulating supply is calculated as the total supply minus the tokens\nheld in excluded addresses (treasury, grants, etc.).",
+        "operationId": "get_circulating_supply",
+        "responses": {
+          "200": {
+            "description": "Circulating supply retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CirculatingSupplyResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AppError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/protocol/token/total_supply": {
+      "get": {
+        "tags": [
+          "protocol"
+        ],
+        "summary": "Total supply of the Orca token",
+        "description": "This endpoint returns the total supply of the protocol's token.\nThe total supply represents all tokens that have been minted, including those\nheld in excluded addresses (treasury, grants, etc.).\n\nThe response is adjusted for token decimals (6 decimal places) and rounded up\nto the nearest whole number.",
+        "operationId": "get_total_supply",
+        "responses": {
+          "200": {
+            "description": "Total supply retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TotalSupplyResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AppError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tokens": {
+      "get": {
+        "tags": [
+          "tokens"
+        ],
+        "summary": "List tokens with pagination and filtering options",
+        "description": "Returns a paginated list of tokens with optional filtering and sorting.",
+        "operationId": "get_tokens",
+        "parameters": [
+          {
+            "name": "next",
+            "in": "query",
+            "description": "Optional cursor for pagination (next)",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "previous",
+            "in": "query",
+            "description": "Optional cursor for pagination (previous)",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "description": "Maximum number of tokens to return (default: 50, max: 3000)",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 0
+            }
+          },
+          {
+            "name": "sort_by",
+            "in": "query",
+            "description": "Field to sort by (default: mint_id)",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/TokenSortField"
+            }
+          },
+          {
+            "name": "sort_direction",
+            "in": "query",
+            "description": "Sort direction (default: asc)",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/TokenSortDirection"
+            }
+          },
+          {
+            "name": "tokens",
+            "in": "query",
+            "description": "Optional filter for specific token addresses",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of tokens retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UtoipaApiResponse_Vec_PublicToken"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad user parameters"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/tokens/search": {
+      "get": {
+        "tags": [
+          "tokens"
+        ],
+        "summary": "Search for tokens by query string",
+        "description": "Returns a list of tokens that match the query string.\nThe query string is matched against the token name, symbol, and address.\n\n",
+        "operationId": "search_tokens",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "description": "Query text to search by",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of matching tokens retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UtoipaApiResponse_Vec_PublicToken"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Invalid search parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AppError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AppError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tokens/{mint_address}": {
+      "get": {
+        "tags": [
+          "tokens"
+        ],
+        "summary": "Get token details by mint address",
+        "description": "Returns detailed information for a specific token identified by its mint address.",
+        "operationId": "get_token",
+        "parameters": [
+          {
+            "name": "mint_address",
+            "in": "path",
+            "description": "Token mint address",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Token details retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UtoipaApiResponse_PublicToken"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid mint address format"
+          },
+          "404": {
+            "description": "Token not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AdaptiveFee": {
+        "type": "object",
+        "required": [
+          "currentRate",
+          "maxRate",
+          "constants",
+          "variables"
+        ],
+        "properties": {
+          "constants": {
+            "$ref": "#/components/schemas/AdaptiveFeeConstants"
+          },
+          "currentRate": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "maxRate": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "variables": {
+            "$ref": "#/components/schemas/AdaptiveFeeVariables"
+          }
+        },
+        "additionalProperties": false
+      },
+      "AdaptiveFeeConstants": {
+        "type": "object",
+        "required": [
+          "filterPeriod",
+          "decayPeriod",
+          "reductionFactor",
+          "adaptiveFeeControlFactor",
+          "maxVolatilityAccumulator",
+          "tickGroupSize",
+          "majorSwapThresholdTicks"
+        ],
+        "properties": {
+          "adaptiveFeeControlFactor": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "decayPeriod": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "filterPeriod": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "majorSwapThresholdTicks": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "maxVolatilityAccumulator": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "reductionFactor": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "tickGroupSize": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          }
+        },
+        "additionalProperties": false
+      },
+      "AdaptiveFeeVariables": {
+        "type": "object",
+        "required": [
+          "lastReferenceUpdateTimestamp",
+          "lastMajorSwapTimestamp",
+          "volatilityReference",
+          "tickGroupIndexReference",
+          "volatilityAccumulator"
+        ],
+        "properties": {
+          "lastMajorSwapTimestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "lastReferenceUpdateTimestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "tickGroupIndexReference": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "volatilityAccumulator": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "volatilityReference": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          }
+        },
+        "additionalProperties": false
+      },
+      "AppError": {
+        "type": "object",
+        "description": "Application error returned by API endpoints",
+        "required": [
+          "inner",
+          "status"
+        ],
+        "properties": {
+          "inner": {
+            "type": "string",
+            "description": "The underlying error"
+          },
+          "status": {
+            "type": "integer",
+            "format": "int32",
+            "description": "HTTP status code",
+            "minimum": 0
+          }
+        }
+      },
+      "CirculatingSupplyResponse": {
+        "type": "object",
+        "description": "Circulating supply response",
+        "required": [
+          "circulating_supply"
+        ],
+        "properties": {
+          "circulating_supply": {
+            "type": "string",
+            "description": "Circulating supply for the Orca token",
+            "example": "53275183"
+          }
+        }
+      },
+      "Decimal": {
+        "type": "string",
+        "format": "float"
+      },
+      "HealthResponse": {
+        "type": "object",
+        "description": "Health check response containing the current status of the service",
+        "required": [
+          "status"
+        ],
+        "properties": {
+          "status": {
+            "type": "string",
+            "description": "Current health status of the service. Returns \"healthy\" when the service is operational.",
+            "example": "healthy"
+          }
+        },
+        "example": {
+          "status": "healthy"
+        }
+      },
+      "LockInfo": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "lockedPercentage": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "example": "0.7"
+          },
+          "name": {
+            "type": "string",
+            "example": "Whirlpool-Lock"
+          }
+        }
+      },
+      "PoolType": {
+        "type": "string",
+        "description": "Type of pool",
+        "enum": [
+          "splashpool",
+          "whirlpool"
+        ]
+      },
+      "ProtocolInfo": {
+        "type": "object",
+        "description": "Protocol information including TVL, volume, fees, and revenue",
+        "required": [
+          "volume24hUsdc",
+          "fees24hUsdc",
+          "revenue24hUsdc",
+          "tvl"
+        ],
+        "properties": {
+          "fees24hUsdc": {
+            "type": "string",
+            "format": "float",
+            "description": "24-hour fees in USDC",
+            "example": "317428.0521046"
+          },
+          "revenue24hUsdc": {
+            "type": "string",
+            "format": "float",
+            "description": "24-hour revenue in USDC",
+            "example": "41265.646773"
+          },
+          "tvl": {
+            "type": "string",
+            "format": "float",
+            "description": "Total Value Locked in USDC",
+            "example": "230551269.0085"
+          },
+          "volume24hUsdc": {
+            "type": "string",
+            "format": "float",
+            "description": "24-hour volume in USDC",
+            "example": "552567794.7830"
+          }
+        }
+      },
+      "ProtocolInfoOrcaToken": {
+        "type": "object",
+        "description": "Detailed information about the protocol's token",
+        "required": [
+          "symbol",
+          "name",
+          "description",
+          "imageUrl",
+          "price",
+          "circulatingSupply",
+          "totalSupply",
+          "stats"
+        ],
+        "properties": {
+          "circulatingSupply": {
+            "type": "string",
+            "format": "float",
+            "description": "Current circulating supply",
+            "example": "53275182.419413"
+          },
+          "description": {
+            "type": "string",
+            "description": "Token description",
+            "example": "Orca Token"
+          },
+          "imageUrl": {
+            "type": "string",
+            "description": "URL to the token's image",
+            "example": "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/orcaEKTdK7LKz57vaAYr9QeNsVEPfiu6QeMU1kektZE/logo.png"
+          },
+          "name": {
+            "type": "string",
+            "description": "Token name (e.g., \"Orca\")",
+            "example": "Orca"
+          },
+          "price": {
+            "type": "string",
+            "format": "float",
+            "description": "Current token price in USD",
+            "example": "1.6767140"
+          },
+          "stats": {
+            "$ref": "#/components/schemas/ProtocolInfoOrcaTokenStats",
+            "description": "Token statistics"
+          },
+          "symbol": {
+            "type": "string",
+            "description": "Token symbol (e.g., \"ORCA\")",
+            "example": "ORCA"
+          },
+          "totalSupply": {
+            "type": "string",
+            "format": "float",
+            "description": "Total token supply",
+            "example": "99999712.243267"
+          }
+        }
+      },
+      "ProtocolInfoOrcaTokenStats": {
+        "type": "object",
+        "description": "Statistics for the protocol's token",
+        "required": [
+          "24h"
+        ],
+        "properties": {
+          "24h": {
+            "$ref": "#/components/schemas/ProtocolInfoOrcaTokenStatsData",
+            "description": "24-hour statistics"
+          }
+        }
+      },
+      "ProtocolInfoOrcaTokenStatsData": {
+        "type": "object",
+        "description": "Daily statistics data for the protocol's token",
+        "required": [
+          "volume"
+        ],
+        "properties": {
+          "volume": {
+            "type": "string",
+            "format": "float",
+            "description": "24-hour trading volume in USD",
+            "example": "594947.6898176792"
+          }
+        }
+      },
+      "Pubkey": {
+        "type": "array",
+        "items": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 0
+        },
+        "description": "A Solana pubkey"
+      },
+      "PublicToken": {
+        "type": "object",
+        "description": "Token information for a whirlpool",
+        "required": [
+          "address",
+          "programId",
+          "decimals",
+          "tags"
+        ],
+        "properties": {
+          "address": {
+            "type": "string",
+            "description": "Token address",
+            "example": "So11111111111111111111111111111111111111112"
+          },
+          "decimals": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Token Decimals for token amount",
+            "example": 6,
+            "minimum": 0
+          },
+          "imageUrl": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "URL to token image",
+            "example": "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/So11111111111111111111111111111111111111112/logo.png"
+          },
+          "name": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Token name",
+            "example": "Solana"
+          },
+          "programId": {
+            "type": "string",
+            "description": "Token program ID",
+            "example": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+          },
+          "symbol": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Token symbol",
+            "example": "SOL"
+          },
+          "tags": {
+            "type": "string",
+            "description": "Token extensions tags",
+            "example": "[\"confidentialTransferFeeConfig\", \"confidentialTransferMint\", \"metadataPointer\", \"mintCloseAuthority\", \"permanentDelegate\", \"tokenMetadata\", \"transferFeeConfig\", \"transferHook\"]"
+          }
+        }
+      },
+      "PublicWhirlpool": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Whirlpool"
+          },
+          {
+            "type": "object",
+            "required": [
+              "hasWarning",
+              "poolType",
+              "tokenA",
+              "tokenB",
+              "stats",
+              "rewards",
+              "lockedLiquidityPercent",
+              "feeTierIndex",
+              "adaptiveFeeEnabled"
+            ],
+            "properties": {
+              "adaptiveFee": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/AdaptiveFee",
+                    "description": "Parameters for adaptive fee calculation if enabled"
+                  }
+                ]
+              },
+              "adaptiveFeeEnabled": {
+                "type": "boolean",
+                "description": "Indicates if the pool uses adaptive fees",
+                "example": false
+              },
+              "addressLookupTable": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/Pubkey",
+                    "description": "Address of the pool's address lookup table, if it exists"
+                  }
+                ]
+              },
+              "feeTierIndex": {
+                "type": "integer",
+                "format": "int32",
+                "description": "The fee tier index of the pool",
+                "example": 4,
+                "minimum": 0
+              },
+              "hasWarning": {
+                "type": "boolean",
+                "description": "Whether the whirlpool has a warning",
+                "example": false
+              },
+              "lockedLiquidityPercent": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/LockInfo"
+                },
+                "description": "Locked liquidity information"
+              },
+              "poolType": {
+                "$ref": "#/components/schemas/PoolType",
+                "description": "The type of pool (whirlpool or splashpool)"
+              },
+              "price": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "float",
+                "description": "The current price of token A denominated in token B",
+                "example": "162.17758715438083504000"
+              },
+              "rewards": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/WhirlpoolRewardInfoExt"
+                },
+                "description": "Information about rewards available in the pool"
+              },
+              "stats": {
+                "type": "object",
+                "description": "Statistics for the pool over different time periods",
+                "additionalProperties": {
+                  "$ref": "#/components/schemas/PublicWhirlpoolStats"
+                },
+                "propertyNames": {
+                  "type": "string",
+                  "description": "Time period for the whirlpool stats",
+                  "enum": [
+                    "5m",
+                    "15m",
+                    "30m",
+                    "1h",
+                    "2h",
+                    "4h",
+                    "8h",
+                    "24h",
+                    "7d",
+                    "30d"
+                  ]
+                }
+              },
+              "tokenA": {
+                "$ref": "#/components/schemas/PublicToken",
+                "description": "Information about token A in the pool"
+              },
+              "tokenB": {
+                "$ref": "#/components/schemas/PublicToken",
+                "description": "Information about token B in the pool"
+              },
+              "tokenBalanceA": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "float",
+                "description": "The current balance of token A in the pool",
+                "example": "105580027977071"
+              },
+              "tokenBalanceB": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "float",
+                "description": "The current balance of token B in the pool",
+                "example": "18616923791931"
+              },
+              "tradeEnableTimestamp": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date-time",
+                "description": "The timestamp when trading was enabled for this pool",
+                "example": "1970-01-01T00:00:00Z"
+              },
+              "tvlUsdc": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "float",
+                "description": "The total value locked in the pool, denominated in USDC",
+                "example": "35735886.7176539739861592478846702700"
+              },
+              "yieldOverTvl": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "float",
+                "description": "The yield generated by the pool relative to its TVL",
+                "example": "0.00305562472377327000"
+              }
+            }
+          }
+        ],
+        "description": "A public whirlpool with additional metadata and statistics"
+      },
+      "PublicWhirlpoolStats": {
+        "type": "object",
+        "description": "Statistics for a whirlpool over a time period",
+        "properties": {
+          "fees": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "float",
+            "description": "Fees earned in USDC",
+            "example": "109195.458980424000"
+          },
+          "rewards": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "float",
+            "description": "Rewards earned in USDC",
+            "example": "0"
+          },
+          "volume": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "float",
+            "description": "Trading volume in USDC",
+            "example": "272988647.45106000"
+          },
+          "yieldOverTvl": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "float",
+            "description": "Yield over TVL",
+            "example": "0.00305562472380393000"
+          }
+        }
+      },
+      "SortDirection": {
+        "type": "string",
+        "description": "Direction to sort results",
+        "enum": [
+          "asc",
+          "desc"
+        ]
+      },
+      "SortField": {
+        "type": "string",
+        "description": "Field to sort the whirlpools by",
+        "enum": [
+          "volume",
+          "volume5m",
+          "volume15m",
+          "volume30m",
+          "volume1h",
+          "volume2h",
+          "volume4h",
+          "volume8h",
+          "volume24h",
+          "volume7d",
+          "volume30d",
+          "tvl",
+          "fees",
+          "fees5m",
+          "fees15m",
+          "fees30m",
+          "fees1h",
+          "fees2h",
+          "fees4h",
+          "fees8h",
+          "fees24h",
+          "fees7d",
+          "fees30d",
+          "feesearned",
+          "feesearned5m",
+          "feesearned15m",
+          "feesearned30m",
+          "feesearned1h",
+          "feesearned2h",
+          "feesearned4h",
+          "feesearned8h",
+          "feesearned24h",
+          "feesearned7d",
+          "feesearned30d",
+          "rewards",
+          "rewards5m",
+          "rewards15m",
+          "rewards30m",
+          "rewards1h",
+          "rewards2h",
+          "rewards4h",
+          "rewards8h",
+          "rewards24h",
+          "rewards7d",
+          "rewards30d",
+          "yieldovertvl",
+          "yieldovertvl5m",
+          "yieldovertvl15m",
+          "yieldovertvl30m",
+          "yieldovertvl1h",
+          "yieldovertvl2h",
+          "yieldovertvl4h",
+          "yieldovertvl8h",
+          "yieldovertvl24h",
+          "yieldovertvl7d",
+          "yieldovertvl30d",
+          "lockedliquiditypercent"
+        ]
+      },
+      "TimePeriod": {
+        "type": "string",
+        "description": "Time period for the whirlpool stats",
+        "enum": [
+          "5m",
+          "15m",
+          "30m",
+          "1h",
+          "2h",
+          "4h",
+          "8h",
+          "24h",
+          "7d",
+          "30d"
+        ]
+      },
+      "TokenListQuery": {
+        "type": "object",
+        "description": "Query parameters for token listing endpoints",
+        "properties": {
+          "next": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Optional cursor for pagination (next)"
+          },
+          "previous": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Optional cursor for pagination (previous)"
+          },
+          "size": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Maximum number of tokens to return (default: 50, max: 3000)",
+            "minimum": 0
+          },
+          "sort_by": {
+            "$ref": "#/components/schemas/TokenSortField",
+            "description": "Field to sort by (default: mint_id)"
+          },
+          "sort_direction": {
+            "$ref": "#/components/schemas/TokenSortDirection",
+            "description": "Sort direction (default: asc)"
+          },
+          "tokens": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Optional filter for specific token addresses"
+          }
+        }
+      },
+      "TokenSortDirection": {
+        "type": "string",
+        "description": "Direction to sort tokens",
+        "enum": [
+          "asc",
+          "desc"
+        ]
+      },
+      "TokenSortField": {
+        "type": "string",
+        "description": "Field to sort tokens by",
+        "enum": [
+          "address",
+          "mint_id",
+          "volume_24h"
+        ]
+      },
+      "TotalSupplyResponse": {
+        "type": "object",
+        "description": "Total supply for the Orca token",
+        "required": [
+          "total_supply"
+        ],
+        "properties": {
+          "total_supply": {
+            "type": "string",
+            "description": "Total supply for the Orca token",
+            "example": "99999713"
+          }
+        }
+      },
+      "UtoipaApiResponse_PublicToken": {
+        "type": "object",
+        "required": [
+          "data",
+          "meta"
+        ],
+        "properties": {
+          "data": {
+            "type": "object",
+            "description": "Token information",
+            "required": [
+              "address",
+              "mintAuthority",
+              "supply",
+              "decimals",
+              "isInitialized",
+              "freezeAuthority",
+              "tokenProgram",
+              "extensions",
+              "tags",
+              "updatedEpoch",
+              "updatedAt",
+              "priceUsdc",
+              "metadata",
+              "stats"
+            ],
+            "properties": {
+              "address": {
+                "type": "string",
+                "description": "Token address",
+                "example": "So11111111111111111111111111111111111111112"
+              },
+              "decimals": {
+                "type": "integer",
+                "format": "int32",
+                "description": "Token Decimals for token amount",
+                "example": 6,
+                "minimum": 0
+              },
+              "extensions": {
+                "type": "string",
+                "description": "The activated Token Extensions used by this token",
+                "example": "{\n      \"confidentialTransferFeeConfig\": {\n        \"authority\": \"9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM\",\n        \"harvestToMintEnabled\": true,\n        \"withdrawWithheldAuthorityElgamalPubkey\": \"...\",\n        \"withheldAmount\": \"...\"\n      },\n      \"confidentialTransferMint\": {\n        \"auditorElgamalPubkey\": null,\n        \"authority\": \"...\",\n        \"autoApproveNewAccounts\": false\n      },\n      \"metadataPointer\": {\n        \"authority\": \"...\",\n        \"metadataAddress\": \"...\"\n      },\n      \"mintCloseAuthority\": {\n        \"closeAuthority\": \"...\"\n      },\n      \"permanentDelegate\": {\n        \"delegate\": \"...\"\n      },\n      \"tokenMetadata\": {\n        \"additionalMetadata\": [],\n        \"mint\": \"...\",\n        \"name\": \"Name of Coin\",\n        \"symbol\": \"Coin\",\n        \"updateAuthority\": \"...\",\n        \"uri\": \"https://example.com/image.json\"\n      },\n      \"transferFeeConfig\": {\n        \"newerTransferFee\": {\n          \"epoch\": 605,\n          \"maximumFee\": 0,\n          \"transferFeeBasisPoints\": 0\n        },\n        \"olderTransferFee\": {\n          \"epoch\": 605,\n          \"maximumFee\": 0,\n          \"transferFeeBasisPoints\": 0\n        },\n        \"transferFeeConfigAuthority\": \"...\",\n        \"withdrawWithheldAuthority\": \"...\",\n        \"withheldAmount\": 0\n      },\n      \"transferHook\": {\n        \"authority\": \"...\",\n        \"programId\": null\n      }\n    }"
+              },
+              "freezeAuthority": {
+                "type": "string",
+                "description": "Freeze authority",
+                "example": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"
+              },
+              "isInitialized": {
+                "type": "boolean",
+                "description": "Whether the token mint has been initialized",
+                "example": true
+              },
+              "metadata": {
+                "type": "string",
+                "description": "Token Metadata",
+                "example": "{\n      \"description\": \"Description about the token\",\n      \"image\": \"https://example.com/image.png\",\n      \"name\": \"Name of Token\",\n      \"risk\": 2,\n      \"symbol\": \"TKN\"\n    }"
+              },
+              "mintAuthority": {
+                "type": "string",
+                "description": "Mint authority",
+                "example": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"
+              },
+              "priceUsdc": {
+                "type": "number",
+                "format": "double",
+                "description": "Price in USD",
+                "example": "0.9998715445029346189836299351"
+              },
+              "stats": {
+                "type": "string",
+                "description": "Stats for different time periods",
+                "example": "{\"24h\": {\"volume\": 1197647.1678154785}}"
+              },
+              "supply": {
+                "type": "integer",
+                "format": "int64",
+                "description": "Token Supply",
+                "example": "154400747126297",
+                "minimum": 0
+              },
+              "tags": {
+                "type": "string",
+                "description": "Token extensions tags",
+                "example": "[\"confidentialTransferFeeConfig\", \"confidentialTransferMint\", \"metadataPointer\", \"mintCloseAuthority\", \"permanentDelegate\", \"tokenMetadata\", \"transferFeeConfig\", \"transferHook\"]"
+              },
+              "tokenProgram": {
+                "type": "string",
+                "description": "Address for the Token program",
+                "example": "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"
+              },
+              "updatedAt": {
+                "type": "string",
+                "format": "date-time",
+                "description": "The timestamp the token extension was last updated",
+                "example": "2025-05-09T00:04:50.745163Z"
+              },
+              "updatedEpoch": {
+                "type": "integer",
+                "format": "int64",
+                "description": "The epoch the token extension was last updated",
+                "example": 784,
+                "minimum": 0
+              }
+            }
+          },
+          "meta": {
+            "$ref": "#/components/schemas/UtoipaCursorMeta"
+          }
+        }
+      },
+      "UtoipaApiResponse_PublicWhirlpool": {
+        "type": "object",
+        "required": [
+          "data",
+          "meta"
+        ],
+        "properties": {
+          "data": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Whirlpool"
+              },
+              {
+                "type": "object",
+                "required": [
+                  "hasWarning",
+                  "poolType",
+                  "tokenA",
+                  "tokenB",
+                  "stats",
+                  "rewards",
+                  "lockedLiquidityPercent",
+                  "feeTierIndex",
+                  "adaptiveFeeEnabled"
+                ],
+                "properties": {
+                  "adaptiveFee": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "$ref": "#/components/schemas/AdaptiveFee",
+                        "description": "Parameters for adaptive fee calculation if enabled"
+                      }
+                    ]
+                  },
+                  "adaptiveFeeEnabled": {
+                    "type": "boolean",
+                    "description": "Indicates if the pool uses adaptive fees",
+                    "example": false
+                  },
+                  "addressLookupTable": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "$ref": "#/components/schemas/Pubkey",
+                        "description": "Address of the pool's address lookup table, if it exists"
+                      }
+                    ]
+                  },
+                  "feeTierIndex": {
+                    "type": "integer",
+                    "format": "int32",
+                    "description": "The fee tier index of the pool",
+                    "example": 4,
+                    "minimum": 0
+                  },
+                  "hasWarning": {
+                    "type": "boolean",
+                    "description": "Whether the whirlpool has a warning",
+                    "example": false
+                  },
+                  "lockedLiquidityPercent": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/LockInfo"
+                    },
+                    "description": "Locked liquidity information"
+                  },
+                  "poolType": {
+                    "$ref": "#/components/schemas/PoolType",
+                    "description": "The type of pool (whirlpool or splashpool)"
+                  },
+                  "price": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "format": "float",
+                    "description": "The current price of token A denominated in token B",
+                    "example": "162.17758715438083504000"
+                  },
+                  "rewards": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/WhirlpoolRewardInfoExt"
+                    },
+                    "description": "Information about rewards available in the pool"
+                  },
+                  "stats": {
+                    "type": "object",
+                    "description": "Statistics for the pool over different time periods",
+                    "additionalProperties": {
+                      "$ref": "#/components/schemas/PublicWhirlpoolStats"
+                    },
+                    "propertyNames": {
+                      "type": "string",
+                      "description": "Time period for the whirlpool stats",
+                      "enum": [
+                        "5m",
+                        "15m",
+                        "30m",
+                        "1h",
+                        "2h",
+                        "4h",
+                        "8h",
+                        "24h",
+                        "7d",
+                        "30d"
+                      ]
+                    }
+                  },
+                  "tokenA": {
+                    "$ref": "#/components/schemas/PublicToken",
+                    "description": "Information about token A in the pool"
+                  },
+                  "tokenB": {
+                    "$ref": "#/components/schemas/PublicToken",
+                    "description": "Information about token B in the pool"
+                  },
+                  "tokenBalanceA": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "format": "float",
+                    "description": "The current balance of token A in the pool",
+                    "example": "105580027977071"
+                  },
+                  "tokenBalanceB": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "format": "float",
+                    "description": "The current balance of token B in the pool",
+                    "example": "18616923791931"
+                  },
+                  "tradeEnableTimestamp": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "format": "date-time",
+                    "description": "The timestamp when trading was enabled for this pool",
+                    "example": "1970-01-01T00:00:00Z"
+                  },
+                  "tvlUsdc": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "format": "float",
+                    "description": "The total value locked in the pool, denominated in USDC",
+                    "example": "35735886.7176539739861592478846702700"
+                  },
+                  "yieldOverTvl": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "format": "float",
+                    "description": "The yield generated by the pool relative to its TVL",
+                    "example": "0.00305562472377327000"
+                  }
+                }
+              }
+            ],
+            "description": "A public whirlpool with additional metadata and statistics"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/UtoipaCursorMeta"
+          }
+        }
+      },
+      "UtoipaApiResponse_Vec_PublicToken": {
+        "type": "object",
+        "required": [
+          "data",
+          "meta"
+        ],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "description": "Token information",
+              "required": [
+                "address",
+                "mintAuthority",
+                "supply",
+                "decimals",
+                "isInitialized",
+                "freezeAuthority",
+                "tokenProgram",
+                "extensions",
+                "tags",
+                "updatedEpoch",
+                "updatedAt",
+                "priceUsdc",
+                "metadata",
+                "stats"
+              ],
+              "properties": {
+                "address": {
+                  "type": "string",
+                  "description": "Token address",
+                  "example": "So11111111111111111111111111111111111111112"
+                },
+                "decimals": {
+                  "type": "integer",
+                  "format": "int32",
+                  "description": "Token Decimals for token amount",
+                  "example": 6,
+                  "minimum": 0
+                },
+                "extensions": {
+                  "type": "string",
+                  "description": "The activated Token Extensions used by this token",
+                  "example": "{\n      \"confidentialTransferFeeConfig\": {\n        \"authority\": \"9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM\",\n        \"harvestToMintEnabled\": true,\n        \"withdrawWithheldAuthorityElgamalPubkey\": \"...\",\n        \"withheldAmount\": \"...\"\n      },\n      \"confidentialTransferMint\": {\n        \"auditorElgamalPubkey\": null,\n        \"authority\": \"...\",\n        \"autoApproveNewAccounts\": false\n      },\n      \"metadataPointer\": {\n        \"authority\": \"...\",\n        \"metadataAddress\": \"...\"\n      },\n      \"mintCloseAuthority\": {\n        \"closeAuthority\": \"...\"\n      },\n      \"permanentDelegate\": {\n        \"delegate\": \"...\"\n      },\n      \"tokenMetadata\": {\n        \"additionalMetadata\": [],\n        \"mint\": \"...\",\n        \"name\": \"Name of Coin\",\n        \"symbol\": \"Coin\",\n        \"updateAuthority\": \"...\",\n        \"uri\": \"https://example.com/image.json\"\n      },\n      \"transferFeeConfig\": {\n        \"newerTransferFee\": {\n          \"epoch\": 605,\n          \"maximumFee\": 0,\n          \"transferFeeBasisPoints\": 0\n        },\n        \"olderTransferFee\": {\n          \"epoch\": 605,\n          \"maximumFee\": 0,\n          \"transferFeeBasisPoints\": 0\n        },\n        \"transferFeeConfigAuthority\": \"...\",\n        \"withdrawWithheldAuthority\": \"...\",\n        \"withheldAmount\": 0\n      },\n      \"transferHook\": {\n        \"authority\": \"...\",\n        \"programId\": null\n      }\n    }"
+                },
+                "freezeAuthority": {
+                  "type": "string",
+                  "description": "Freeze authority",
+                  "example": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"
+                },
+                "isInitialized": {
+                  "type": "boolean",
+                  "description": "Whether the token mint has been initialized",
+                  "example": true
+                },
+                "metadata": {
+                  "type": "string",
+                  "description": "Token Metadata",
+                  "example": "{\n      \"description\": \"Description about the token\",\n      \"image\": \"https://example.com/image.png\",\n      \"name\": \"Name of Token\",\n      \"risk\": 2,\n      \"symbol\": \"TKN\"\n    }"
+                },
+                "mintAuthority": {
+                  "type": "string",
+                  "description": "Mint authority",
+                  "example": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"
+                },
+                "priceUsdc": {
+                  "type": "number",
+                  "format": "double",
+                  "description": "Price in USD",
+                  "example": "0.9998715445029346189836299351"
+                },
+                "stats": {
+                  "type": "string",
+                  "description": "Stats for different time periods",
+                  "example": "{\"24h\": {\"volume\": 1197647.1678154785}}"
+                },
+                "supply": {
+                  "type": "integer",
+                  "format": "int64",
+                  "description": "Token Supply",
+                  "example": "154400747126297",
+                  "minimum": 0
+                },
+                "tags": {
+                  "type": "string",
+                  "description": "Token extensions tags",
+                  "example": "[\"confidentialTransferFeeConfig\", \"confidentialTransferMint\", \"metadataPointer\", \"mintCloseAuthority\", \"permanentDelegate\", \"tokenMetadata\", \"transferFeeConfig\", \"transferHook\"]"
+                },
+                "tokenProgram": {
+                  "type": "string",
+                  "description": "Address for the Token program",
+                  "example": "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"
+                },
+                "updatedAt": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "The timestamp the token extension was last updated",
+                  "example": "2025-05-09T00:04:50.745163Z"
+                },
+                "updatedEpoch": {
+                  "type": "integer",
+                  "format": "int64",
+                  "description": "The epoch the token extension was last updated",
+                  "example": 784,
+                  "minimum": 0
+                }
+              }
+            }
+          },
+          "meta": {
+            "$ref": "#/components/schemas/UtoipaCursorMeta"
+          }
+        }
+      },
+      "UtoipaApiResponse_Vec_PublicWhirlpool": {
+        "type": "object",
+        "required": [
+          "data",
+          "meta"
+        ],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/Whirlpool"
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "hasWarning",
+                    "poolType",
+                    "tokenA",
+                    "tokenB",
+                    "stats",
+                    "rewards",
+                    "lockedLiquidityPercent",
+                    "feeTierIndex",
+                    "adaptiveFeeEnabled"
+                  ],
+                  "properties": {
+                    "adaptiveFee": {
+                      "oneOf": [
+                        {
+                          "type": "null"
+                        },
+                        {
+                          "$ref": "#/components/schemas/AdaptiveFee",
+                          "description": "Parameters for adaptive fee calculation if enabled"
+                        }
+                      ]
+                    },
+                    "adaptiveFeeEnabled": {
+                      "type": "boolean",
+                      "description": "Indicates if the pool uses adaptive fees",
+                      "example": false
+                    },
+                    "addressLookupTable": {
+                      "oneOf": [
+                        {
+                          "type": "null"
+                        },
+                        {
+                          "$ref": "#/components/schemas/Pubkey",
+                          "description": "Address of the pool's address lookup table, if it exists"
+                        }
+                      ]
+                    },
+                    "feeTierIndex": {
+                      "type": "integer",
+                      "format": "int32",
+                      "description": "The fee tier index of the pool",
+                      "example": 4,
+                      "minimum": 0
+                    },
+                    "hasWarning": {
+                      "type": "boolean",
+                      "description": "Whether the whirlpool has a warning",
+                      "example": false
+                    },
+                    "lockedLiquidityPercent": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/LockInfo"
+                      },
+                      "description": "Locked liquidity information"
+                    },
+                    "poolType": {
+                      "$ref": "#/components/schemas/PoolType",
+                      "description": "The type of pool (whirlpool or splashpool)"
+                    },
+                    "price": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "format": "float",
+                      "description": "The current price of token A denominated in token B",
+                      "example": "162.17758715438083504000"
+                    },
+                    "rewards": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/WhirlpoolRewardInfoExt"
+                      },
+                      "description": "Information about rewards available in the pool"
+                    },
+                    "stats": {
+                      "type": "object",
+                      "description": "Statistics for the pool over different time periods",
+                      "additionalProperties": {
+                        "$ref": "#/components/schemas/PublicWhirlpoolStats"
+                      },
+                      "propertyNames": {
+                        "type": "string",
+                        "description": "Time period for the whirlpool stats",
+                        "enum": [
+                          "5m",
+                          "15m",
+                          "30m",
+                          "1h",
+                          "2h",
+                          "4h",
+                          "8h",
+                          "24h",
+                          "7d",
+                          "30d"
+                        ]
+                      }
+                    },
+                    "tokenA": {
+                      "$ref": "#/components/schemas/PublicToken",
+                      "description": "Information about token A in the pool"
+                    },
+                    "tokenB": {
+                      "$ref": "#/components/schemas/PublicToken",
+                      "description": "Information about token B in the pool"
+                    },
+                    "tokenBalanceA": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "format": "float",
+                      "description": "The current balance of token A in the pool",
+                      "example": "105580027977071"
+                    },
+                    "tokenBalanceB": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "format": "float",
+                      "description": "The current balance of token B in the pool",
+                      "example": "18616923791931"
+                    },
+                    "tradeEnableTimestamp": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "format": "date-time",
+                      "description": "The timestamp when trading was enabled for this pool",
+                      "example": "1970-01-01T00:00:00Z"
+                    },
+                    "tvlUsdc": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "format": "float",
+                      "description": "The total value locked in the pool, denominated in USDC",
+                      "example": "35735886.7176539739861592478846702700"
+                    },
+                    "yieldOverTvl": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "format": "float",
+                      "description": "The yield generated by the pool relative to its TVL",
+                      "example": "0.00305562472377327000"
+                    }
+                  }
+                }
+              ],
+              "description": "A public whirlpool with additional metadata and statistics"
+            }
+          },
+          "meta": {
+            "$ref": "#/components/schemas/UtoipaCursorMeta"
+          }
+        }
+      },
+      "UtoipaCursorMeta": {
+        "type": "object",
+        "properties": {
+          "next": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "previous": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "Whirlpool": {
+        "type": "object",
+        "description": "A concentrated liquidity pool belonging to the Whirlpools program",
+        "required": [
+          "address",
+          "whirlpoolsConfig",
+          "whirlpoolBump",
+          "tickSpacing",
+          "tickSpacingSeed",
+          "feeRate",
+          "protocolFeeRate",
+          "liquidity",
+          "sqrtPrice",
+          "tickCurrentIndex",
+          "protocolFeeOwedA",
+          "protocolFeeOwedB",
+          "tokenMintA",
+          "tokenVaultA",
+          "feeGrowthGlobalA",
+          "tokenMintB",
+          "tokenVaultB",
+          "feeGrowthGlobalB",
+          "rewardLastUpdatedTimestamp",
+          "updatedAt",
+          "updatedSlot",
+          "writeVersion"
+        ],
+        "properties": {
+          "address": {
+            "type": "string",
+            "description": "Account address",
+            "example": "Czfq3xZZDmsdGdUyrNLtRhGc47cXcZtLG4crryfu44zE"
+          },
+          "feeGrowthGlobalA": {
+            "type": "string",
+            "description": "Fee growth global for token A",
+            "example": "9554655121161208077"
+          },
+          "feeGrowthGlobalB": {
+            "type": "string",
+            "description": "Fee growth global for token B",
+            "example": "1228285739014669796"
+          },
+          "feeRate": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Stored as hundredths of a basis point\nu16::MAX corresponds to ~6.5%",
+            "example": 400,
+            "minimum": 0
+          },
+          "liquidity": {
+            "type": "string",
+            "description": "Liquidity value for the pool",
+            "example": "748079040958583"
+          },
+          "protocolFeeOwedA": {
+            "type": "string",
+            "description": "Protocol fees owed for token A",
+            "example": "167818699"
+          },
+          "protocolFeeOwedB": {
+            "type": "string",
+            "description": "Protocol fees owed for token B",
+            "example": "13808875"
+          },
+          "protocolFeeRate": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Portion of fee rate taken stored as basis points",
+            "example": 1300,
+            "minimum": 0
+          },
+          "rewardLastUpdatedTimestamp": {
+            "type": "string",
+            "description": "Last time rewards were updated",
+            "example": "2025-05-09T03:40:08Z"
+          },
+          "sqrtPrice": {
+            "type": "string",
+            "description": "MAX/MIN at Q32.64, but using Q64.64 for rounder bytes",
+            "example": "7428739679004743247"
+          },
+          "tickCurrentIndex": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Current tick index",
+            "example": -18192
+          },
+          "tickSpacing": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The desired tick spacing for the pool",
+            "example": 4,
+            "minimum": 0
+          },
+          "tickSpacingSeed": {
+            "type": "string",
+            "description": "Seed for the pool's tick spacing",
+            "example": "[4, 0]"
+          },
+          "tokenMintA": {
+            "type": "string",
+            "description": "Token A mint address",
+            "example": "So11111111111111111111111111111111111111112"
+          },
+          "tokenMintB": {
+            "type": "string",
+            "description": "Token B mint address",
+            "example": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
+          },
+          "tokenVaultA": {
+            "$ref": "#/components/schemas/Pubkey",
+            "description": "Token A vault address"
+          },
+          "tokenVaultB": {
+            "type": "string",
+            "description": "Token B vault address",
+            "example": "2WLWEuKDgkDUccTpbwYp1GToYktiSB1cXvreHUwiSUVP"
+          },
+          "updatedAt": {
+            "type": "string",
+            "description": "Last time the pool was updated",
+            "example": "2025-05-09T03:40:22.210625Z"
+          },
+          "updatedSlot": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Slot when the pool was last updated",
+            "example": 338786229
+          },
+          "whirlpoolBump": {
+            "type": "string",
+            "description": "The bump value when deriving the PDA of the Whirlpool address",
+            "example": "[255]"
+          },
+          "whirlpoolsConfig": {
+            "type": "string",
+            "description": "WhirlpoolsConfig account address",
+            "example": "2LecshUwdy9xi7meFgHtFJQNSKk4KdTrcpvaB56dP2NQ"
+          },
+          "writeVersion": {
+            "type": "string",
+            "description": "Write version for optimistic concurrency control",
+            "example": "1459165811157"
+          }
+        }
+      },
+      "WhirlpoolRewardInfoExt": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WhirlpoolRewardInfoExtDb"
+          },
+          {
+            "type": "object",
+            "required": [
+              "active",
+              "emissionsPerSecond"
+            ],
+            "properties": {
+              "active": {
+                "type": "boolean",
+                "description": "Whether the reward is active",
+                "example": false
+              },
+              "emissionsPerSecond": {
+                "type": "string",
+                "format": "float",
+                "description": "Emissions per second",
+                "example": "0"
+              }
+            }
+          }
+        ],
+        "description": "Reward information for a whirlpool"
+      },
+      "WhirlpoolRewardInfoExtDb": {
+        "type": "object",
+        "description": "The actual reward info returned by the db, retaining snake-case field names\n\nNote that we can't make use of `#[serde(flatten)]` here because of some underlying bugs in\nhow serde handles `rename_all` for flattened struct fields.\n\nAlso note that we use [`String`] for the [`Pubkey`] types since the only use for this\nstruct is to serialize it to a string anyway, so better to take what the db gives us\ndirectly for performance reasons",
+        "required": [
+          "mint",
+          "vault",
+          "authority",
+          "emissions_per_second_x64",
+          "growth_global_x64"
+        ],
+        "properties": {
+          "authority": {
+            "type": "string"
+          },
+          "emissions_per_second_x64": {
+            "type": "string"
+          },
+          "growth_global_x64": {
+            "type": "string"
+          },
+          "mint": {
+            "type": "string"
+          },
+          "vault": {
+            "type": "string"
+          }
+        }
+      },
+      "WhirlpoolSearchQuery": {
+        "type": "object",
+        "description": "Query parameters for searching whirlpools",
+        "properties": {
+          "hasLockedLiquidity": {
+            "type": [
+              "boolean",
+              "null"
+            ],
+            "description": "Filter for pools with locked liquidity",
+            "example": true
+          },
+          "hasRewards": {
+            "type": [
+              "boolean",
+              "null"
+            ],
+            "description": "Filter for pools with rewards",
+            "example": true
+          },
+          "minTvl": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/Decimal",
+                "description": "Minimum TVL of a whirlpool in USDC"
+              }
+            ]
+          },
+          "minVolume": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/Decimal",
+                "description": "Minimum volume of a whirlpool in USDC"
+              }
+            ]
+          },
+          "next": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Cursor to start the next page of results",
+            "example": "eyJpZCI6MTIzLCJzb3J0X2V4cHIiOnsiZmllbGQiOiJ2b2x1bWUiLCJkaXJlY3Rpb24iOiJkZXNjIn0sInZhbHVlIjoiMjMwNTUxMjY5LjAxMjMifQ"
+          },
+          "q": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Query text to search by",
+            "example": "SOL USDC"
+          },
+          "size": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int32",
+            "description": "Maximum number of results to return",
+            "default": 100,
+            "example": 20,
+            "minimum": 0
+          },
+          "sortBy": {
+            "$ref": "#/components/schemas/SortField",
+            "description": "Field to sort by"
+          },
+          "sortDirection": {
+            "$ref": "#/components/schemas/SortDirection",
+            "description": "Sort direction"
+          },
+          "stats": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TimePeriod"
+            },
+            "description": "Filter whirlpools with stats for these time periods"
+          },
+          "userTokens": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Pubkey"
+            },
+            "description": "Comma-separated list of token addresses owned by the user",
+            "example": "So11111111111111111111111111111111111111112,EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
+          },
+          "verifiedOnly": {
+            "type": [
+              "boolean",
+              "null"
+            ],
+            "description": "Filter for pools with verified tokens",
+            "example": true
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "health",
+      "description": "Health and diagnostic endpoints"
+    },
+    {
+      "name": "protocol",
+      "description": "Orca protocol information endpoints"
+    },
+    {
+      "name": "tokens",
+      "description": "Token information endpoints"
+    },
+    {
+      "name": "whirlpools",
+      "description": "Whirlpool information endpoints"
+    },
+    {
+      "name": "historic",
+      "description": "Historical data endpoints"
+    }
+  ]
+}

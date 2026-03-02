@@ -1,0 +1,72 @@
+PRD: Skillset.network (Phase 1 MVP)
+1. Project Overview
+Skillset.network is a decentralized platform where users capture POV video data to train robotics foundation models.
+Core Loop: Users browse robotic tasks (e.g., "Make a sandwich") -> Upload POV video -> Earn $SKILL tokens.
+Phase 1 Goal: A functional frontend MVP where users can sign in, simulate uploads, and see their token balance increase.
+2. Design System & Aesthetic
+Reference: Silencio.network, Figure.ai.
+Theme: "Dark Mode Future." Deep blacks, charcoal greys, high-contrast white text.
+Accents: Neon Green (Terminal style) or Electric Blue for buttons/data.
+Typography:
+Headings: Clean Sans-Serif (e.g., Inter or Geist).
+Data/Tokens: Monospaced (e.g., JetBrains Mono or Roboto Mono).
+Visuals: Heavy use of background video loops (robots/POV), glassmorphism (translucent backgrounds), and thin 1px borders.
+3. Technical Stack (Replit Optimized)
+Framework: Next.js (App Router).
+Styling: Tailwind CSS (essential for the dark/futuristic styling).
+Icons: Lucide-React.
+Components: Shadcn/UI (optional, but recommended for Tables/Dialogs).
+Auth: Replit Auth (standard useUser hook).
+State: React useState (for immediate token updates) + Simple Database (to persist balance).
+
+4. Page Breakdown: Homepage
+A. Navigation Bar (Sticky Top)
+Left: Logo text SKILLSET.NETWORK (Monospaced, Bold).
+Right (Logged Out): [Sign In] button (Triggers Replit Auth).
+Right (Logged In):
+Token Display: An animated counter showing the user's balance. Icon: [Coin/Chip] + 100 $SKILL.
+User Avatar: Small circular profile pic.
+B. Hero Section (Above the Fold)
+Background: Full-width container. Implementation Note: Use a placeholder div with a dark overlay until a video asset is provided, or a stock POV video loop.
+Center Overlay Content:
+H1: "Earn by training robots" (Large, Tracking-tight).
+Subheader: "AI and robots of the future belong to the community. Capture skills, upload data, power the automation revolution."
+CTA Button: [Start Training] -> Scrolls down to Task Board.
+C. "How It Works" Section
+Three cards arranged horizontally (Desktop) or vertically (Mobile).
+Card Style: Black background, thin grey border, glow on hover.
+Step 1: Icon: [Search]. Title: "Select a Task". Text: "Find high-demand skills like cooking or cleaning."
+Step 2: Icon: [Camera]. Title: "Record POV". Text: "Film the action from a first-person perspective."
+Step 3: Icon: [Upload]. Title: "Earn $SKILL". Text: "Get paid instantly for every valid dataset."
+D. The Task Board (Bounty List)
+Layout: A Data Grid / Table.
+Headers: Task Name | Difficulty | Reward | Action.
+Data (Hardcoded for MVP):
+Make a Sandwich | Low | 100 $SKILL | [Upload Button]
+Wipe the Table | Low | 100 $SKILL | [Upload Button]
+Sort Recycling | Medium | 100 $SKILL | [Upload Button]
+Interaction: Clicking [Upload Button] opens the Upload Modal.
+E. Upload Modal (Component)
+Trigger: Click "Upload" on a task.
+State:
+If Logged Out: Redirect to Sign In.
+If Logged In: Open Modal.
+Modal Content:
+Title: "Upload Data: [Task Name]"
+Input: File Dropzone (accept .mp4, .mov).
+Action: When file is selected -> Show progress bar (simulate 2 seconds) -> Show "Success" checkmark.
+Result: Close modal, trigger Toast Notification ("+100 $SKILL Added"), update Header Balance.
+
+5. User Stories & Logic
+1. Authentication
+User: I want to sign up easily so I can save my progress.
+Dev Logic: Use Replit's native <Login /> or useUser() hook.
+2. The "Earning" Loop (Simulation)
+User: I want to see my balance grow when I do work.
+Dev Logic:
+Initialize balance = 0.
+On successful upload simulation, run setBalance(prev => prev + 100).
+(Optional Phase 1): Save this integer to the local database associated with the User ID.
+3. Visual Feedback
+User: I want to feel like I'm using a futuristic tool.
+Dev Logic: Use framer-motion for smooth distinct animations. When the balance increases, the numbers should "roll" or flash green.
